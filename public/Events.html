@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events</title>
+    <link rel="stylesheet" href="Events.css">
+    <link rel="stylesheet" href="./landing.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <div class="logo">
+                    <a href="/">Your Logo</a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="/landing">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="/events">Events</a></li>
+                </ul>
+                <!-- Profile Picture Area -->
+                <div class="profile-pic" onclick="toggleDropdown()">
+                    <img src="./images/profile.svg" class="dropbtn" id="profile_pic" alt="Profile Picture">
+                    <div id="myDropdown" class="dropdown-content">
+                        <a href="">My Profile</a>
+                        <a href="/mybookings">Show Bookings</a>
+                        <p id="logout">Logout</p>
+                    </div>
+                </div>
+                <!-- Logout Button -->
+                <div class="logout-btn">
+                    <p id="logout">Logout</p>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="event-list">
+        <div class="event">
+            <img src="./images/AR.svg" alt="Event 1">
+            <div class="event-details">
+                <h2>A R Rahman Live in Concert</h2>
+                <p>Get ready for an amazing live concert in Paris featuring the renowned musician Ar Rahman, brought to you by Shruthileyah. Join us at Accor Arena for a memorable night of fantastic music and rhythms.</p>
+                <a href="/arrahmanconcert" class="btn">Go to Page</a>
+            </div>
+        </div>
+        <div class="event">
+            <img src="./images/Vijay-Antony.jpg" alt="Event 2">
+            <div class="event-details">
+                <h2>Vijay Antony Live in Concert</h2>
+                <p>Get ready for an amazing live concert in Chennai featuring the renowned musician Vijay Antony, brought to you by Shruthileyah. Join us at Accor Arena for a memorable night of fantastic music and rhythms.</p>
+                <a href="/vijayantonyconcert" class="btn">Go to Page</a>
+            </div>
+        </div>
+        <div class="event">
+            <img src="./images/GVP.jpg" alt="Event 2">
+            <div class="event-details">
+                <h2>GV Prakash Live in Concert</h2>
+                <p>Get ready for an amazing live concert in Trichy featuring the renowned musician GV Prakash, brought to you by Shruthileyah. Join us at Accor Arena for a memorable night of fantastic music and rhythms.</p>
+                <a href="/gvprakash" class="btn">Go to Page</a>
+            </div>
+        </div>
+        <!-- More events can be added similarly -->
+    </div>
+</body>
+<script>
+        document.getElementById("logout").addEventListener("click",()=>{
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.replace("/")
+    })
+    var token = JSON.parse(localStorage.getItem("token")) || false;
+    var user = JSON.parse(localStorage.getItem("user")) || false;
+    if(!token){
+        window.location.replace("/login")
+    }
+    if(user){
+        document.getElementById("profile_pic").src = user.profile_picture;
+        console.log(user.order)
+    }
+    else{
+        getData();
+    }
+    async function getData(){
+        try{
+            const response = await fetch(`/landing`, 
+            {method: "POST",mode: "cors",
+            headers: {"Content-Type": "application/json"},body:JSON.stringify({token})})
+            const res = await response.json();
+            document.getElementsByTagName("body")[0].style.opacity = 1;
+            if(res){
+                localStorage.setItem("user",JSON.stringify(res));
+            }
+        }
+        catch(err){
+            document.getElementsByTagName("body")[0].style.opacity = 1;
+            alert("Something went wrong! Try Again.")
+            console.log(err);
+        }
+        window.location.reload();
+    }
+    function toggleDropdown() {
+  var dropdownContent = document.getElementById("myDropdown");
+  dropdownContent.classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    for (var i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+</script>
+</html>

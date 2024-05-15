@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./MyBookings.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <div class="logo">
+                    <a href="/">Your Logo</a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="/landing">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="/events">Events</a></li>
+                </ul>
+                <!-- Profile Picture Area -->
+                <div class="profile-pic" onclick="toggleDropdown()">
+                    <img src="./images/profile.svg" class="dropbtn" id="profile_pic" alt="Profile Picture">
+                    <div id="myDropdown" class="dropdown-content">
+                        <a href="">My Profile</a>
+                        <a href="/mybookings">Show Bookings</a>
+                        <p id="logout">Logout</p>
+                    </div>
+                </div>
+                <!-- Logout Button -->
+                <div class="logout-btn">
+                    <p id="logout">Logout</p>
+                </div>
+            </div>
+        </nav>
+    </header>
+</body>
+<script>
+    document.getElementById("logout").addEventListener("click",()=>{
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.replace("/")
+    })
+    var token = JSON.parse(localStorage.getItem("token")) || false;
+    var user = JSON.parse(localStorage.getItem("user")) || false;
+    if(!token){
+        window.location.replace("/login")
+    }
+    if(user){
+        document.getElementById("profile_pic").src = user.profile_picture;
+        console.log(user.order)
+    }
+    else{
+        getData();
+    }
+    async function getData(){
+        try{
+            const response = await fetch(`/landing`, 
+            {method: "POST",mode: "cors",
+            headers: {"Content-Type": "application/json"},body:JSON.stringify({token})})
+            const res = await response.json();
+            document.getElementsByTagName("body")[0].style.opacity = 1;
+            if(res){
+                localStorage.setItem("user",JSON.stringify(res));
+            }
+        }
+        catch(err){
+            document.getElementsByTagName("body")[0].style.opacity = 1;
+            alert("Something went wrong! Try Again.")
+            console.log(err);
+        }
+        window.location.reload();
+    }
+    function toggleDropdown() {
+  var dropdownContent = document.getElementById("myDropdown");
+  dropdownContent.classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    for (var i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+
+function createGrid(data) {
+  const body = document.querySelector('body');
+  const gridContainer = document.createElement('div');
+  gridContainer.classList.add('grid-container');
+
+  data.forEach(item => {
+    const gridItem = document.createElement('div');
+    gridItem.classList.add('grid-item');
+
+    // Constructing the grid item content
+    const content = `
+      <p><strong>Event:</strong> ${item.Event}</p>
+      <p><strong>Venue:</strong> ${item.venue}</p>
+      <p><strong>Ticket Count:</strong> ${item.Ticket_Count}</p>
+      <p><strong>Ticket Price:</strong> ${item.Ticket_Price}</p>
+      <p><strong>Amount Paid:</strong> ${item.Amount_Paid}</p>      
+      <p><strong>Order ID:</strong> ${item.Order_ID}</p>
+      <p><strong>Payment ID:</strong> ${item.Payment_ID}</p>
+      
+      
+      <!-- Add more fields as needed -->
+    `;
+
+    gridItem.innerHTML = content;
+    gridContainer.appendChild(gridItem);
+  });
+  if(user.order.length == 0){
+    const msg = document.createElement("h1");
+    msg.innerText = "No Data Found";
+    gridContainer.append(msg);
+  }
+    body.appendChild(gridContainer);
+}
+
+        
+createGrid(user.order);
+
+
+</script>
+</html>

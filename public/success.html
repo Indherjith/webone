@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Success</title>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f9;
+    margin: 0;
+}
+
+.container {
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #4CAF50;
+}
+
+p {
+    font-size: 16px;
+    color: #333;
+}
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Success!</h1>
+        <div id="orderDetails">
+            <p><strong>Event:</strong> <span id="event"></span></p>
+            <p><strong>Venue:</strong> <span id="venue"></span></p>
+            <p><strong>Order ID:</strong> <span id="orderId"></span></p>
+            <p><strong>Payment ID:</strong> <span id="paymentId"></span></p>
+            <p><strong>Ticket Count:</strong> <span id="count"></span></p>
+            <p><strong>Ticket Price:</strong> <span id="price"></span></p>
+            <p><strong>Total Amount Paid:</strong> <span id="total"></span></p>
+        </div>
+    </div>
+</body>
+<script>
+    
+    setInterval(()=>{
+        window.location.replace("/events")
+    },10000)
+    window.onload = function() {
+        const params = new URLSearchParams(window.location.search);
+        const payment_id = params.get('payment_id');
+        var token = JSON.parse(localStorage.getItem("token")) || false;
+        async function getData(){
+            try{
+                const response = await fetch(`/landing`, 
+                {method: "POST",mode: "cors",
+                headers: {"Content-Type": "application/json"},body:JSON.stringify({token})})
+                const res = await response.json();
+                document.getElementsByTagName("body")[0].style.opacity = 1;
+                if(res){
+                    localStorage.setItem("user",JSON.stringify(res));
+                }
+            }
+            catch(err){
+                document.getElementsByTagName("body")[0].style.opacity = 1;
+                alert("Something went wrong! Try Again.")
+                console.log(err);
+            }
+            var user = JSON.parse(localStorage.getItem("user")) || false;
+            
+            const allData = user.order;
+            const TicketDetails = allData.find(item=>(item.Payment_ID == payment_id));
+            console.log(TicketDetails)
+            document.getElementById('orderId').textContent = TicketDetails.Order_ID || 'Not provided';
+            document.getElementById('paymentId').textContent = payment_id || 'Not provided';
+            document.getElementById('event').textContent = TicketDetails.Event || 'Not provided';
+            document.getElementById('total').textContent = TicketDetails.Amount_Paid+"₹" || 'Not provided';
+            document.getElementById('price').textContent = TicketDetails.Ticket_Price+"₹" || 'Not provided';
+            document.getElementById('count').textContent = TicketDetails.Ticket_Count || 'Not provided';
+            document.getElementById('venue').textContent = TicketDetails.venue || 'Not provided';
+        }
+        getData();
+        
+
+        
+
+    // document.getElementById('orderId').textContent = order_id || 'Not provided';
+    document.getElementById('paymentId').textContent = payment_id || 'Not provided';
+};
+
+</script>
+</html>
